@@ -1,0 +1,11 @@
+{
+  "id": "days-since",
+  "name": "Days Since",
+  "version": "1.0.0",
+  "minAppVersion": "0.15.0",
+  "description": "Demonstrates some of the capabilities of the Obsidian API.",
+  "author": "gndclouds",
+  "authorUrl": "https://gndclouds.earth",
+  "fundingUrl": "https://fund.gndclouds.earth",
+  "isDesktopOnly": false
+}

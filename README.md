@@ -1,1 +1,5 @@
-# days-since-obsidian
+# Days Since
+
+`yarn`
+
+`yarn dev`
