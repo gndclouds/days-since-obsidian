@@ -7,8 +7,18 @@ If your plugin does not need CSS, delete this file.
 
 */
 
-@import url("https://fonts.googleapis.com/css2?family=Schoolbell&display=swap");
-
-/* .date-font {
-  font-family: "Schoolbell", cursive;
-} */
+#plugin-tooltip {
+  position: absolute;
+  z-index: 1000;
+  display: none;
+  padding: 5px;
+  border: 1px solid #ddd;
+  background-color: #f9f9f9;
+  color: #333;
+  border-radius: 4px;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+  font-size: 14px;
+  max-width: 200px;
+  word-wrap: break-word;
+  transition: opacity 0.3s;
+}

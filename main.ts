@@ -61,12 +61,13 @@ export default class MyPlugin extends Plugin {
     });
 
     this.tooltip = document.createElement("div");
-    this.tooltip.setAttribute("id", "my-plugin-tooltip");
-    this.tooltip.style.position = "absolute";
-    this.tooltip.style.zIndex = "1000";
-    this.tooltip.style.display = "none";
-    // Add more styling as needed...
+    this.tooltip.setAttribute("id", "plugin-tooltip");
     document.body.appendChild(this.tooltip);
+
+    this.loadStyles();
+  }
+  loadStyles() {
+    this.addStyle("path/to/your/styles.css");
   }
   async loadSettings() {
     this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());

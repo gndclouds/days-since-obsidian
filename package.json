@@ -1,7 +1,7 @@
 {
   "name": "days-since",
   "version": "1.0.0",
-  "description": "This is a sample plugin for Obsidian (https://obsidian.md)",
+  "description": "Show the number of days since a date on hover.",
   "main": "main.js",
   "scripts": {
     "dev": "node esbuild.config.mjs",
