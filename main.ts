@@ -4,7 +4,7 @@ interface MyPluginSettings {
   selectedDateFormat: string;
 }
 
-const DATE_FORMATS = {
+const DATE_FORMATS: { [key: string]: RegExp } = {
   "YYYY-MM-DD": /\b\d{4}-\d{2}-\d{2}\b/,
   "DD-MM-YYYY": /\b\d{2}-\d{2}-\d{4}\b/,
   // Add other formats as needed
