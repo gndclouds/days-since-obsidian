@@ -1,5 +1,7 @@
 # Days Since Date Tooltip for Obsidian
 
+![[gndclouds 20240519-213409-Obsidian-1990-01-31 - ObsidianSandBox - Obsidian v1.6.0.gif]]
+
 ## Description
 
 This Obsidian plugin enhances your note-taking experience by providing a quick and intuitive way to track time. By simply hovering over any date in your notes, a tooltip appears, showing you how many days have passed since that date. This feature is especially useful for tracking project timelines, journal entries, or any important dates in your notes.

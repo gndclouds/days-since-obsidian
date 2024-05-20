@@ -1,9 +1,9 @@
 {
   "id": "days-since",
   "name": "Days Since",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "minAppVersion": "0.15.0",
-  "description": "Demonstrates some of the capabilities of the Obsidian API.",
+  "description": "A plugin to show the number of days since a given date.",
   "author": "gndclouds",
   "authorUrl": "https://gndclouds.earth",
   "isDesktopOnly": false

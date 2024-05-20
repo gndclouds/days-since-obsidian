@@ -1,22 +1,12 @@
-import {
-  App,
-  Editor,
-  MarkdownView,
-  Modal,
-  Notice,
-  Plugin,
-  PluginSettingTab,
-  Setting,
-} from "obsidian";
-
-// Remember to rename these classes and interfaces!
+import { App, Plugin, PluginSettingTab, Setting } from "obsidian";
 
 interface MyPluginSettings {
   selectedDateFormat: string;
 }
+
 const DATE_FORMATS = {
-  "YYYY-MM-DD": /\b\d{4}-\d{2}-\d{2}\b/g,
-  "DD-MM-YYYY": /\b\d{2}-\d{2}-\d{4}\b/g,
+  "YYYY-MM-DD": /\b\d{4}-\d{2}-\d{2}\b/,
+  "DD-MM-YYYY": /\b\d{2}-\d{2}-\d{4}\b/,
   // Add other formats as needed
 };
 
@@ -25,50 +15,138 @@ const DEFAULT_SETTINGS: MyPluginSettings = {
 };
 
 export default class MyPlugin extends Plugin {
+  private tooltip: HTMLElement;
+  settings: MyPluginSettings;
+
+  private handleSelection(): void {
+    const selection = window.getSelection();
+    if (!selection || selection.rangeCount === 0) return;
+
+    const selectedText = this.stripMarkdown(selection.toString().trim());
+    const selectedRegex = DATE_FORMATS[this.settings.selectedDateFormat];
+    const matches = selectedText.match(selectedRegex);
+
+    if (
+      matches &&
+      matches.length === 1 &&
+      this.isExactDateSelection(selectedText, matches[0])
+    ) {
+      this.showTooltip(
+        matches[0],
+        selection.getRangeAt(0).getBoundingClientRect()
+      );
+    } else {
+      this.tooltip.style.display = "none"; // Hide tooltip if no single date is found
+    }
+  }
+
   private handleHover(event: MouseEvent): void {
     const hoveredElement = event.target as HTMLElement;
-    const hoveredText = hoveredElement.textContent || "";
-    const selectedRegex = DATE_FORMATS[this.settings.selectedDateFormat];
 
-    // Use match to find the date in the text
-    const match = hoveredText.match(selectedRegex);
-    if (match && match.length > 0) {
-      // Use the first matched date
-      const hoveredDate = new Date(match[0]);
+    // Ensure the hover event is in the file viewer by checking for a parent with a specific class or ID
+    if (!hoveredElement.closest(".file-viewer-class")) {
+      this.tooltip.style.display = "none"; // Hide tooltip if not in file viewer
+      return;
+    }
+
+    const fileName = hoveredElement.textContent?.trim();
+    if (!fileName) return;
+
+    const selectedRegex = DATE_FORMATS[this.settings.selectedDateFormat];
+    const matches = fileName.match(selectedRegex);
+
+    if (matches && matches.length === 1) {
+      this.showTooltip(matches[0], hoveredElement.getBoundingClientRect());
+    } else {
+      this.tooltip.style.display = "none"; // Hide tooltip if no single date is found
+    }
+  }
+
+  private showTooltip(dateString: string, rect: DOMRect): void {
+    try {
+      const hoveredDate = new Date(dateString);
       const today = new Date();
       const timeDifference = today.getTime() - hoveredDate.getTime();
       const daysSince = Math.floor(timeDifference / (1000 * 3600 * 24));
 
-      // Display the result in the tooltip
       this.tooltip.textContent = `${daysSince} days since`;
-      this.tooltip.style.left = `${event.clientX}px`;
-      this.tooltip.style.top = `${event.clientY + 20}px`; // 20 pixels below the cursor
+      this.tooltip.style.left = `${Math.min(
+        rect.left,
+        window.innerWidth - this.tooltip.offsetWidth - 10
+      )}px`;
+      this.tooltip.style.top = `${Math.min(
+        rect.bottom + 20,
+        window.innerHeight - this.tooltip.offsetHeight - 10
+      )}px`;
       this.tooltip.style.display = "block";
+    } catch (error) {
+      console.error("Error parsing date:", error);
+      this.tooltip.style.display = "none"; // Hide tooltip on error
     }
+  }
+
+  private stripMarkdown(text: string): string {
+    return text.replace(/(\*\*|__|\*|_)/g, "");
+  }
+
+  private isExactDateSelection(
+    selectedText: string,
+    matchedDate: string
+  ): boolean {
+    return (
+      selectedText === matchedDate ||
+      selectedText === ` ${matchedDate} ` ||
+      selectedText === ` ${matchedDate}` ||
+      selectedText === `${matchedDate} `
+    );
   }
 
   async onload() {
     await this.loadSettings();
     console.log("Selected date format:", this.settings.selectedDateFormat);
-    this.registerDomEvent(document, "mouseover", (event: MouseEvent) => {
+
+    // Inject CSS styles
+    this.injectStyles();
+
+    // Create the tooltip element and apply the CSS class
+    this.tooltip = document.createElement("div");
+    this.tooltip.classList.add("plugin-tooltip");
+    this.tooltip.style.display = "none";
+    document.body.appendChild(this.tooltip);
+
+    document.addEventListener("selectionchange", () => {
+      this.handleSelection();
+    });
+
+    document.addEventListener("mouseover", (event: MouseEvent) => {
       this.handleHover(event);
     });
-    this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
-    this.addSettingTab(new MyPluginSettingTab(this.app, this));
 
-    this.registerDomEvent(document, "mouseout", (event: MouseEvent) => {
+    document.addEventListener("mouseout", () => {
       this.tooltip.style.display = "none";
     });
 
-    this.tooltip = document.createElement("div");
-    this.tooltip.setAttribute("id", "plugin-tooltip");
-    document.body.appendChild(this.tooltip);
+    this.addSettingTab(new MyPluginSettingTab(this.app, this));
+  }
 
-    this.loadStyles();
+  private injectStyles() {
+    const style = document.createElement("style");
+    style.textContent = `
+      .plugin-tooltip {
+        position: absolute;
+        background-color: var(--background-primary);
+        color: var(--text-normal);
+        padding: 5px;
+        border-radius: 5px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        border: 1px solid var(--background-modifier-border);
+        font-family: var(--font-family);
+        z-index: 1000;
+      }
+    `;
+    document.head.appendChild(style);
   }
-  loadStyles() {
-    this.addStyle("path/to/your/styles.css");
-  }
+
   async loadSettings() {
     this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
   }
@@ -79,22 +157,6 @@ export default class MyPlugin extends Plugin {
 
   onunload() {
     this.tooltip.remove();
-  }
-}
-
-class SampleModal extends Modal {
-  constructor(app: App) {
-    super(app);
-  }
-
-  onOpen() {
-    const { contentEl } = this;
-    contentEl.setText("Woah!");
-  }
-
-  onClose() {
-    const { contentEl } = this;
-    contentEl.empty();
   }
 }
 

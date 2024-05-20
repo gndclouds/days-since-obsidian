@@ -1,7 +1,7 @@
 {
   "name": "days-since",
-  "version": "1.0.0",
-  "description": "This Obsidian plugin enhances your note-taking experience by providing a quick and intuitive way to track time.",
+  "version": "2.0.0",
+  "description": "A plugin to show the number of days since a given date.",
   "main": "main.js",
   "scripts": {
     "dev": "node esbuild.config.mjs",
